@@ -1,0 +1,13 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+
+# gazelle:build_file_name BUILD,BUILD.bazel
+
+# gazelle:exclude _artifacts
+# gazelle:exclude _gopath
+# gazelle:exclude _output
+# gazelle:exclude _tmp
+
+# gazelle:prefix devops.io/cloud
+# gazelle:proto disable_global
+
+gazelle(name = "gazelle")
