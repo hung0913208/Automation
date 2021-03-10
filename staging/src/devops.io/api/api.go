@@ -15,17 +15,18 @@ type Version {
 }
 
 type Alias {
-  code int
+  code map[string]string
 }
 
 type Api struct {
-  versions []*Version
   aliases map[string]*Alias
+  versions map[string]*Version
+  mainlines map[string]string
 
-  level, main int
+  level int
   owner *ApiServer
-  nable bool
-  name string
+  enable bool
+  name, main string
 }
 
 const {
@@ -44,8 +45,27 @@ const {
  *                next function easily
  */
 func (self *Api) alias(path string) *Api {
-  self.aliases[path] = &Alias{version: self.main}
-  self.owner.router.HandleFunc(alias, self.owner.redirect(path, self.name))
+  if _, ok := self.aliases[path]; ok {
+    panic(fmt.Sprintf("redefine alias %s", path))
+  }
+
+  self.aliases[path] = &Alias{}
+  self.aliases[path].code = self.mainlines
+
+  self.owner.router.HandleFunc(alias,
+    func(w http.ResponseWriter, r *http.Request){
+      code := self.aliases[path].code[r.Method]
+
+      if ver, ok := self.versions[code]; ! ok {
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      } else if handler, ok := ver.methods[r.Method]; ! ok {
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      } else if api.isAllowed(r) {
+        handler(w, r)
+      } else {
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      }
+    })
   return self
 }
 
@@ -118,7 +138,11 @@ func (self *Api) version(code int) *Api {
  *                next function easily
  */
 func (self *Api) handle(method string, handler Handler) *Api {
-  self.methods[method] = handler
+  if _, ok := self.mainlines[method]; ! ok {
+    self.mainlines[method] = self.main
+  }
+
+  self.versions[self.main].methods[method] = handler
   return self
 }
 
@@ -145,12 +169,23 @@ func (self *Api) endpoint(endpoint string) *ApiServer {
  *                next function easily
  */
 func (self *Api) mock(path string) *Api {
-  for i := 1; i <= len(self.versions); i++ {
-    self.owner.router.HandleFunc(fmt.Sprintf("%s/v%d%s", self.base, i, path),
-                                 self.owner.reorder(self.name, i - 1))
+  for ver, obj := range self.versions {
+    var dest string
+
+    if len(self.base) > 0 {
+      dest = fmt.Sprintf("/%s/%s%s", self.base, ver, path)
+    } else {
+      dest = fmt.Sprintf("/%s%s", ver, path)
+    }
+
+    self.owner.router.HandleFunc(dest, self.owner.reorder(self.name, ver))
   }
 
-  return self
+  if len(self.base) > 0 {
+    path = fmt.Sprintf("/%s%s", self.base, path)
+  }
+
+  return alias(path)
 }
 
 /* ------------------------- ApiServer ---------------------------- */
@@ -198,40 +233,13 @@ func (self *ApiServer) endpoint(endpoint string) *Api {
  *  \return *Api: to make a chain call, we will return itself to make calling
  *                next function easily
  */
-func (self *ApiServer) reorder(endpoint string, code int) Handler {
+func (self *ApiServer) reorder(endpoint, code string) Handler {
   return func(w http.ResponseWriter, r *http.Request) {
     if api, ok := self.endpoints[endpoint]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    } else if code >= len(apis.versions) {
+    } else if ver, ok := apis.versions[code]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    } else if handler, ok := api.versions[code].methods[r.Method]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    } else if api.isAllowed(r) {
-      handler(w, r)
-    } else {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    }
-  }
-}
-
-/*! \brief Redirect requests from specific path to specific endpoint
- *
- *  This method is used to link a path to specific endpoint in order to handle
- * requests which are send directly to this path. This alias could be change
- * the flow dynamically in order to specify version for each RESTful API,
- * without halting our service
- *
- *  \param path: the path which will receive requests
- *  \return *Api: to make a chain call, we will return itself to make calling
- *                next function easily
- */
-func (self *ApiServer) redirect(path, endpoint string) Handler {
-  return func(w http.ResponseWriter, r *http.Request) {
-    if api, ok := self.endpoints[endpoint]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    } else if alias, ok := api.aliases[path]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
-    } else if handler, ok := api.versions[alias.code].methods[r.Method]; ! ok {
+    } else if handler, ok := ver.methods[r.Method]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
     } else if api.isAllowed(r) {
       handler(w, r)
