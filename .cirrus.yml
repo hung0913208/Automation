@@ -3,4 +3,4 @@ task:
     image: l.gcr.io/google/bazel:latest
   matrix:
     - name: Self-testing
-      test_script: bazel test --test_tag_filters=selftest //test/...
+      test_script: bazel test --test_tag_filters=selftest //test/... --sandbox_debug=1
