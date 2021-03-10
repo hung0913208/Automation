@@ -1,4 +1,6 @@
-container:
-  image: l.gcr.io/google/bazel:latest
 task:
-  do_self_test: bazel test --test_tag_filters=selftest //test/...
+  container:
+    image: l.gcr.io/google/bazel:latest
+  matrix:
+    - name: Self-testing
+      test_script: bazel test --test_tag_filters=selftest //test/...
