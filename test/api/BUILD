@@ -5,7 +5,7 @@ go_test(
   srcs = glob(['*.go']),
   tags = ['selftest'],
   deps = [
-    "//staging/src/depops.io/api:go_default_library",
+    "//staging/src/devops.io/api:go_default_library",
   ]
 )
 
