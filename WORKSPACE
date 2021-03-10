@@ -44,9 +44,9 @@ go_repository(
 )
 
 go_repository(
-  name = "com_github_graphql-gophers_graphql-go",
-  importpath = "github.com/graphql-gophers/graphql-go",
-  commit = "bd703c223f03528743b4fac4b0c8ee1632837cd4",
+  name = "com_github_graphql-go_graphql",
+  importpath = "github.com/graphql-go/graphql-go",
+  tag = "v0.7.9",
 )
 
 go_repository(
