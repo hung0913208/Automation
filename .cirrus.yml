@@ -3,4 +3,9 @@ task:
     image: l.gcr.io/google/bazel:latest
   matrix:
     - name: Self-testing
-      test_script: bazel test --test_tag_filters=selftest //test/... --sandbox_debug=1
+      test_script:
+        bazel test
+          --test_tag_filters=selftest
+          --remote_http_cache=http://$CIRRUS_HTTP_CACHE_HOST
+          //test/...
+          --sandbox_debug=1

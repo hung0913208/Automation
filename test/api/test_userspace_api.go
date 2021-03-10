@@ -5,7 +5,7 @@ import (
   "devops.io/cloud/api"
 )
 
-type step {
+type step struct {
   query, expect string
 }
 
@@ -14,7 +14,9 @@ func TestConnectivity(t *testing.T) {
     step{`{
       ping
     }
-    `, `{"code": 200, "data": "pong"}`}
+    `,
+    `{"code": 200, "data": "pong"}`,
+    },
   }
 
   for _, query := queries {
