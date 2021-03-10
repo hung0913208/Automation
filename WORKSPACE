@@ -38,12 +38,6 @@ go_repository(
 )
 
 go_repository(
-  name = "com_github_gorilla_mux",
-  importpath = "github.com/gorilla/mux",
-  tag = "v1.8.0",
-)
-
-go_repository(
   name = "com_github_graphql-go_graphql",
   importpath = "github.com/graphql-go/graphql-go",
   tag = "v0.7.9",
