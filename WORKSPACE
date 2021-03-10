@@ -39,7 +39,7 @@ go_repository(
 
 go_repository(
   name = "com_github_graphql-go_graphql",
-  importpath = "github.com/graphql-go/graphql-go",
+  importpath = "github.com/graphql-go/graphql",
   tag = "v0.7.9",
 )
 
