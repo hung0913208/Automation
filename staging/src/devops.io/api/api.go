@@ -310,7 +310,7 @@ func ok(w http.ResponseWriter) func(string) {
 
 /* --------------------------- public ----------------------------- */
 
-func (self *ApiServer) GetMuxer() mux.Router {
+func (self *ApiServer) GetMuxer() *mux.Router {
   return self.router
 }
 
