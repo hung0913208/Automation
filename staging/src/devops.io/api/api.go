@@ -304,7 +304,7 @@ func nok(w http.ResponseWriter) func(int, string) {
  */
 func ok(w http.ResponseWriter) func(string) {
   return func(message string) {
-    pack(200, message)
+    pack(w)(200, message)
   }
 }
 
