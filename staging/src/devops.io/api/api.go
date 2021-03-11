@@ -30,9 +30,9 @@ type Api struct {
 }
 
 const {
-  PUBLIC    = 0
-  PRIVATE   = 1
-  PROTECTED = 2
+  PUBLIC    = 0,
+  PRIVATE   = 1,
+  PROTECTED = 2,
 }
 
 /*! \brief Make an alias path to specific endpoint
@@ -57,13 +57,13 @@ func (self *Api) alias(path string) *Api {
       code := self.aliases[path].code[r.Method]
 
       if ver, ok := self.versions[code]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
       } else if handler, ok := ver.methods[r.Method]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
       } else if api.isAllowed(r) {
         handler(w, r)
       } else {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
       }
     })
   return self
@@ -89,8 +89,7 @@ func (self *Api) isAllowed(r *http.Request) bool {
 
     case PRIVATE:
       if agent, ok := r.Header["User-Agent"]; ok && agent == self.agent {
-          return r.Host == "localhost"
-        }
+        return r.Host == "localhost"
       } else {
         return false
       }
@@ -236,15 +235,15 @@ func (self *ApiServer) endpoint(endpoint string) *Api {
 func (self *ApiServer) reorder(endpoint, code string) Handler {
   return func(w http.ResponseWriter, r *http.Request) {
     if api, ok := self.endpoints[endpoint]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if ver, ok := apis.versions[code]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if handler, ok := ver.methods[r.Method]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if api.isAllowed(r) {
       handler(w, r)
     } else {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint)
+      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     }
   }
 }
