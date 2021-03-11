@@ -227,7 +227,7 @@ func (self *ApiServer) reorder(endpoint, code string) Handler {
   return func(w http.ResponseWriter, r *http.Request) {
     if api, ok := self.endpoints[endpoint]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
-    } else if ver, ok := apis.versions[code]; ! ok {
+    } else if ver, ok := api.versions[code]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if handler, ok := ver.methods[r.Method]; ! ok {
       nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
@@ -289,7 +289,7 @@ func pack(w http.ResponseWriter) func(int, string) {
  */
 func nok(w http.ResponseWriter) func(int, string) {
   return func(code int, message string) {
-    return pack(code, message)
+    pack(w)(code, message)
   }
 }
 
@@ -304,7 +304,7 @@ func nok(w http.ResponseWriter) func(int, string) {
  */
 func ok(w http.ResponseWriter) func(string) {
   return func(message string) {
-    return pack(200, message)
+    pack(200, message)
   }
 }
 
