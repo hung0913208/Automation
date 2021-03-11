@@ -89,7 +89,7 @@ func (self *Api) isAllowed(r *http.Request) bool {
     case PRIVATE:
       if agents, ok := r.Header["User-Agent"]; ok {
         if agents[0] == self.owner.agent {
-          return r.Host == 'localhost'
+          return r.Host == "http://localhost" || r.Host == "https://localhost"
         } else {
           return false
         }
@@ -184,7 +184,7 @@ func (self *Api) mock(path string) *Api {
     path = fmt.Sprintf("/%s%s", self.owner.base, path)
   }
 
-  return alias(path)
+  return self.alias(path)
 }
 
 /* ------------------------- ApiServer ---------------------------- */
@@ -206,7 +206,7 @@ type ApiServer struct {
  */
 func (self *ApiServer) endpoint(endpoint string) *Api {
   if _, ok := self.endpoints[endpoint]; ! ok {
-    api = self.newApi()
+    api := self.newApi()
 
     api.versions = make([]*Version, 1)
     api.aliases = make([]string)
