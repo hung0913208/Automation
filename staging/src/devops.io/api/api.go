@@ -10,11 +10,11 @@ import (
 /* ------------------------- Api ---------------------------- */
 type Handler func(http.ResponseWriter, *http,Request)
 
-type Version {
+type Version struct {
   methods map[string]Handler
 }
 
-type Alias {
+type Alias struct {
   code map[string]string
 }
 
@@ -30,9 +30,9 @@ type Api struct {
 }
 
 const {
-  PUBLIC    0
-  PRIVATE   1
-  PROTECTED 2
+  PUBLIC    = 0
+  PRIVATE   = 1
+  PROTECTED = 2
 }
 
 /*! \brief Make an alias path to specific endpoint
