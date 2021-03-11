@@ -8,7 +8,7 @@ import (
 )
 
 /* ------------------------- Api ---------------------------- */
-type Handler func(http.ResponseWriter, *http,Request)
+type Handler func(http.ResponseWriter, *http.Request)
 
 type Version struct {
   methods map[string]Handler
@@ -52,18 +52,18 @@ func (self *Api) alias(path string) *Api {
   self.aliases[path] = &Alias{}
   self.aliases[path].code = self.mainlines
 
-  self.owner.router.HandleFunc(alias,
+  self.owner.router.HandleFunc(path,
     func(w http.ResponseWriter, r *http.Request){
       code := self.aliases[path].code[r.Method]
 
       if ver, ok := self.versions[code]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+        nok(w)(404, fmt.Sprintf("Not found %s", path))
       } else if handler, ok := ver.methods[r.Method]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
-      } else if api.isAllowed(r) {
+        nok(w)(404, fmt.Sprintf("Not found %s", path))
+      } else if self.isAllowed(r) {
         handler(w, r)
       } else {
-        nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+        nok(w)(404, fmt.Sprintf("Not found %s", path))
       }
     })
   return self
@@ -88,15 +88,19 @@ func (self *Api) isAllowed(r *http.Request) bool {
       return true
 
     case PRIVATE:
-      if agent, ok := r.Header["User-Agent"]; ok && agent == self.agent {
-        return r.Host == "localhost"
+      if agent, ok := r.Header["User-Agent"]; ok {
+        if agent == self.ower.agent {
+          return r.Host == 'https://localhost' || r.Host == 'http://localhost'
+        } else {
+          return false
+        }
       } else {
         return false
       }
 
     case PROTECTED:
       if agent, ok := r.Header["User-Agent"]; ok {
-        return agent == self.agent
+        return agent == self.owner.agent
       } else {
         return false
       }
@@ -190,7 +194,6 @@ func (self *Api) mock(path string) *Api {
 /* ------------------------- ApiServer ---------------------------- */
 type ApiServer struct {
   endpoints map[string]*Api
-  schemas map[string]graphql.Schema
   router *mux.Router
 
   base, agent string
@@ -310,10 +313,11 @@ func (self *ApiServer) GetMuxer() mux.Router {
   return self.router
 }
 
-func NewApiServer() *ApiServer {
+func NewApiServer(user_agent string) *ApiServer {
   ret := &ApiServer{}
 
   ret.router = mux.NewRouter()
+  ret.agent = user_agent
   ret.endpoint("query").
       mock("/query").
       handle("PUT", ret.resolve)
