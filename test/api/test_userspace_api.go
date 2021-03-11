@@ -1,6 +1,8 @@
 package main
 
 import (
+  "net/http/httptest"
+  "net/http"
   "testing"
   "devops.io/cloud/api"
 )
