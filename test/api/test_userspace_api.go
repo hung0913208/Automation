@@ -28,7 +28,7 @@ func TestConnectivity(t *testing.T) {
     r := srv.GetMuxer()
 
     r.ServeHTTP(w, httptest.NewRequest("PUT", "/query",
-      strings.NewReader(q.query))
+      strings.NewReader(q.query)))
 
     if w.Code != http.StatusOK {
       t.Error("Did not get expected HTTP status code, got", w.Code)
