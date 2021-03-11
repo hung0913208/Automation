@@ -206,15 +206,7 @@ type ApiServer struct {
  */
 func (self *ApiServer) endpoint(endpoint string) *Api {
   if _, ok := self.endpoints[endpoint]; ! ok {
-    api := self.newApi()
-
-    api.versions = make([]*Version, 1)
-    api.aliases = make([]string)
-    api.enable = true
-    api.level = PUBLIC
-    api.owner = self
-    api.name = endpoint
-    api.main = 0
+    api := self.newApi(endpoint)
 
     self.endpoints[endpoint] = api
   }
@@ -247,7 +239,20 @@ func (self *ApiServer) reorder(endpoint, code string) Handler {
   }
 }
 
-func (self *ApiServer) resolver(w http.ResponseWriter, r *http.Request) {
+func (self *ApiServer) resolve(w http.ResponseWriter, r *http.Request) {
+}
+
+func (self *ApiServer) newApi(name string) *Api {
+  ret := &Api{}
+
+  ret.main = ""
+  ret.name = name
+  ret.owner = self
+  ret.enable = true
+  ret.aliases = make(map[string]*Alias)
+  ret.versions = make(map[string]*Version)
+  ret.mainlines = make(map[string]string)
+  return ret
 }
 
 /* --------------------------- helper ----------------------------- */
