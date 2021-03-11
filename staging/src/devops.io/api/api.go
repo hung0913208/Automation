@@ -3,7 +3,7 @@ package api
 import (
   "fmt"
   "net/http"
-  "gihub.com/gorilla/mux"
+  "github.com/gorilla/mux"
   "github.com/graphql-go/graphql"
 )
 
