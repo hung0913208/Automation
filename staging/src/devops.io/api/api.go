@@ -89,7 +89,7 @@ func (self *Api) isAllowed(r *http.Request) bool {
 
     case PRIVATE:
       if agent, ok := r.Header["User-Agent"]; ok {
-        if agent == self.ower.agent {
+        if agent == self.owner.agent {
           return r.Host == 'https://localhost' || r.Host == 'http://localhost'
         } else {
           return false
