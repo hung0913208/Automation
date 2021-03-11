@@ -49,7 +49,11 @@ func (self *Api) alias(path string) *Api {
   }
 
   self.aliases[path] = &Alias{}
-  self.aliases[path].code = self.mainlines
+  self.aliases[path].code = make(map[string]string)
+
+  for key, val := range self.mainlines {
+    self.aliases[path].code[key] = val
+  }
 
   self.owner.router.HandleFunc(path,
     func(w http.ResponseWriter, r *http.Request){
