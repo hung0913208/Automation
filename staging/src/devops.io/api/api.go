@@ -144,6 +144,14 @@ func (self *Api) version(code string) *Api {
  *                next function easily
  */
 func (self *Api) handle(method string, handler Handler) *Api {
+  if len(self.main) == 0 {
+    panic("Please specifiy version before doing anything")
+  }
+
+  if _, ok := self.versions[self.main]; ! ok {
+    panic("There is something wrong with creating new version")
+  }
+
   if _, ok := self.mainlines[method]; ! ok {
     self.mainlines[method] = self.main
   }
@@ -328,6 +336,7 @@ func NewApiServer(user_agent string) *ApiServer {
   ret.endpoints = make(map[string]*Api)
   ret.agent = user_agent
   ret.endpoint("query").
+      version("v1").
       mock("/query").
       handle("PUT", ret.resolve)
 
