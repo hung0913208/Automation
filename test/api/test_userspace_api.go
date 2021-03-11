@@ -3,6 +3,7 @@ package main
 import (
   "net/http/httptest"
   "net/http"
+  "strings"
   "testing"
   "devops.io/cloud/api"
 )
@@ -21,12 +22,13 @@ func TestConnectivity(t *testing.T) {
     },
   }
 
-  for _, query := range queries {
+  for _, q := range queries {
     srv := api.NewApiServer("test")
     w := httptest.NewRecorder()
     r := srv.GetMuxer()
 
-    r.ServeHTTP(w, httptest.NewRequest("PUT", "/query", query))
+    r.ServeHTTP(w, httptest.NewRequest("PUT", "/query",
+      strings.NewReader(q.query))
 
     if w.Code != http.StatusOK {
       t.Error("Did not get expected HTTP status code, got", w.Code)
