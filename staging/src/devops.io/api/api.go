@@ -4,7 +4,6 @@ import (
   "fmt"
   "net/http"
   "github.com/gorilla/mux"
-  "github.com/graphql-go/graphql"
 )
 
 /* ------------------------- Api ---------------------------- */
@@ -88,8 +87,8 @@ func (self *Api) isAllowed(r *http.Request) bool {
       return true
 
     case PRIVATE:
-      if agent, ok := r.Header["User-Agent"]; ok {
-        if agent == self.owner.agent {
+      if agents, ok := r.Header["User-Agent"]; ok {
+        if agents[0] == self.owner.agent {
           return r.Host == 'https://localhost' || r.Host == 'http://localhost'
         } else {
           return false
@@ -99,8 +98,8 @@ func (self *Api) isAllowed(r *http.Request) bool {
       }
 
     case PROTECTED:
-      if agent, ok := r.Header["User-Agent"]; ok {
-        return agent == self.owner.agent
+      if agents, ok := r.Header["User-Agent"]; ok {
+        return agents[0] == self.owner.agent
       } else {
         return false
       }
