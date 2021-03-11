@@ -6,7 +6,7 @@ go_library(
   name = "go_default_library",
   srcs = glob(["*.go", "layers/*.go", "structs/*.go"]),
   importmap = "devops.io/cloud/vendor/devops.io/api",
-  importpath = "devops.io/api",
+  importpath = "devops.io/cloud/api",
   deps = [
     "@com_github_gorilla_mux//:go_default_library",
     "@org_golang_google_grpc//:go_default_library",
