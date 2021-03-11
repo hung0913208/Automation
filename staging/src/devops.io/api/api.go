@@ -120,7 +120,10 @@ func (self *Api) isAllowed(r *http.Request) bool {
  */
 func (self *Api) version(code string) *Api {
   if _, ok := self.versions[code]; ! ok {
-    self.versions[code] = &Version{}
+    ver := &Version{}
+
+    ver.methods = make(map[string]Handler)
+    self.versions[code] = ver
   }
 
   self.main = code
