@@ -29,11 +29,11 @@ type Api struct {
   name, main string
 }
 
-const {
-  PUBLIC    = 0,
-  PRIVATE   = 1,
-  PROTECTED = 2,
-}
+const (
+  PUBLIC    = 0
+  PRIVATE   = 1
+  PROTECTED = 2
+)
 
 /*! \brief Make an alias path to specific endpoint
  *
