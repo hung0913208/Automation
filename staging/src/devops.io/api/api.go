@@ -168,7 +168,7 @@ func (self *Api) endpoint(endpoint string) *Api {
  *                next function easily
  */
 func (self *Api) mock(path string) *Api {
-  for ver, obj := range self.versions {
+  for ver, _ := range self.versions {
     var dest string
 
     if len(self.owner.base) > 0 {
