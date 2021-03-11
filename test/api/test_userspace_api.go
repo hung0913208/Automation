@@ -20,7 +20,7 @@ func TestConnectivity(t *testing.T) {
   }
 
   for _, query := range queries {
-    srv := api.NewApiServer()
+    srv := api.NewApiServer("test")
     w := httptest.NewRecorder()
     r := srv.GetMuxer()
 
