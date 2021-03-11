@@ -318,6 +318,7 @@ func NewApiServer(user_agent string) *ApiServer {
   ret := &ApiServer{}
 
   ret.router = mux.NewRouter()
+  ret.endpoints = make(map[string]*Api)
   ret.agent = user_agent
   ret.endpoint("query").
       mock("/query").
