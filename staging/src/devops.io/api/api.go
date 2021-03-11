@@ -89,7 +89,7 @@ func (self *Api) isAllowed(r *http.Request) bool {
     case PRIVATE:
       if agents, ok := r.Header["User-Agent"]; ok {
         if agents[0] == self.owner.agent {
-          return r.Host == 'https://localhost' || r.Host == 'http://localhost'
+          return r.Host == 'localhost'
         } else {
           return false
         }
@@ -118,15 +118,12 @@ func (self *Api) isAllowed(r *http.Request) bool {
  *  \return *Api: to make a chain call, we will return itself to make calling
  *                next function easily
  */
-func (self *Api) version(code int) *Api {
-  if code == len(self.versions) {
-    self.versions = append(self.versions, &Version{})
+func (self *Api) version(code string) *Api {
+  if _, ok := self.versions[code]; ! ok {
+    self.versions[code] = &Version{}
   }
 
-  if code < len(self.versions) {
-    self.main = code
-  }
-
+  self.main = code
   return self
 }
 
@@ -157,7 +154,7 @@ func (self *Api) handle(method string, handler Handler) *Api {
  *  \return *Api: to make a chain call, we will return itself to make calling
  *                next function easily
  */
-func (self *Api) endpoint(endpoint string) *ApiServer {
+func (self *Api) endpoint(endpoint string) *Api {
   return self.owner.endpoint(endpoint)
 }
 
@@ -174,8 +171,8 @@ func (self *Api) mock(path string) *Api {
   for ver, obj := range self.versions {
     var dest string
 
-    if len(self.base) > 0 {
-      dest = fmt.Sprintf("/%s/%s%s", self.base, ver, path)
+    if len(self.owner.base) > 0 {
+      dest = fmt.Sprintf("/%s/%s%s", self.owner.base, ver, path)
     } else {
       dest = fmt.Sprintf("/%s%s", ver, path)
     }
@@ -183,8 +180,8 @@ func (self *Api) mock(path string) *Api {
     self.owner.router.HandleFunc(dest, self.owner.reorder(self.name, ver))
   }
 
-  if len(self.base) > 0 {
-    path = fmt.Sprintf("/%s%s", self.base, path)
+  if len(self.owner.base) > 0 {
+    path = fmt.Sprintf("/%s%s", self.owner.base, path)
   }
 
   return alias(path)
