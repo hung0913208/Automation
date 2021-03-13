@@ -60,13 +60,13 @@ func (self *Api) alias(path string) *Api {
       code := self.aliases[path].code[r.Method]
 
       if ver, ok := self.versions[code]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", path))
+        self.nok(w)(404, fmt.Sprintf("Not found %s", path))
       } else if handler, ok := ver.methods[r.Method]; ! ok {
-        nok(w)(404, fmt.Sprintf("Not found %s", path))
+        self.nok(w)(404, fmt.Sprintf("Not found %s", path))
       } else if self.isAllowed(r) {
         handler(w, r)
       } else {
-        nok(w)(404, fmt.Sprintf("Not found %s", path))
+        self.nok(w)(404, fmt.Sprintf("Not found %s", path))
       }
     })
   return self
@@ -229,15 +229,15 @@ func (self *ApiServer) endpoint(endpoint string) *Api {
 func (self *ApiServer) reorder(endpoint, code string) Handler {
   return func(w http.ResponseWriter, r *http.Request) {
     if api, ok := self.endpoints[endpoint]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+      self.nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if ver, ok := api.versions[code]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+      self.nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if handler, ok := ver.methods[r.Method]; ! ok {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+      self.nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     } else if api.isAllowed(r) {
       handler(w, r)
     } else {
-      nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
+      self.nok(w)(404, fmt.Sprintf("Not found %s", endpoint))
     }
   }
 }
@@ -249,11 +249,11 @@ func (self *ApiServer) resolve(w http.ResponseWriter, r *http.Request) {
   resp := graphql.Do(params)
 
   if len(resp.Errors) > 0 {
-    self.nok(w)(503, fmt.Sprintf("%+v", resp.Errors))
+    self.self.nok(w)(503, fmt.Sprintf("%+v", resp.Errors))
   } else if raw, err := json.Marshal(r); err != nil {
     self.ok(w)(raw)
   } else {
-    self.nok(w)(503, err.Error())
+    self.self.nok(w)(503, err.Error())
   }
  */
 }
@@ -306,7 +306,7 @@ func pack(w http.ResponseWriter) func(int, string) {
 
 /*! \brief Send nok code and message to client
  *
- *  This function is used to produce a lambda which is used to write a nok
+ *  This function is used to produce a lambda which is used to write a self.nok
  * message to client
  *
  *  \param w: the response writer
