@@ -190,6 +190,32 @@ func (self *Api) mock(path string) *Api {
   return self.alias(path)
 }
 
+/*! \brief Send ok code and message to client
+ *
+ *  This function is used to produce a lambda which is used to write an ok
+ * message to client
+ *
+ *  \param w: the response writer
+ *  \return func(string): a lambda which is used to pack message and code
+ *                        into an json object
+ */
+func (self *Api) ok(w http.ResponseWriter) func(string) {
+  return self.owner.ok(w)
+}
+
+/*! \brief Send nok code and message to client
+ *
+ *  This function is used to produce a lambda which is used to write a self.nok
+ * message to client
+ *
+ *  \param w: the response writer
+ *  \return func(int, string): a lambda which is used to pack message and code
+ *                             into an json object
+ */
+func (self *Api) nok(w http.ResponseWriter) func(int, string) {
+  return self.owner.nok(w)
+}
+
 /* ------------------------- ApiServer ---------------------------- */
 type ApiServer struct {
   endpoints map[string]*Api
