@@ -91,22 +91,10 @@ func (self *Api) isAllowed(r *http.Request) bool {
       return true
 
     case PRIVATE:
-      if agents, ok := r.Header["User-Agent"]; ok {
-        if agents[0] == self.owner.agent {
-          return r.Host == "http://localhost" || r.Host == "https://localhost"
-        } else {
-          return false
-        }
-      } else {
-        return false
-      }
+      return self.owner.isLocal(r)
 
     case PROTECTED:
-      if agents, ok := r.Header["User-Agent"]; ok {
-        return agents[0] == self.owner.agent
-      } else {
-        return false
-      }
+      return self.owner.isInternal(r)
 
     default:
       return false
@@ -255,6 +243,19 @@ func (self *ApiServer) reorder(endpoint, code string) Handler {
 }
 
 func (self *ApiServer) resolve(w http.ResponseWriter, r *http.Request) {
+  fmt.Println(r.RemoteAddr)
+/*
+  params := graphql.Params{Schema: self.getSchema(r), RequestString: query}
+  resp := graphql.Do(params)
+
+  if len(resp.Errors) > 0 {
+    self.nok(w)(503, fmt.Sprintf("%+v", resp.Errors))
+  } else if raw, err := json.Marshal(r); err != nil {
+    self.ok(w)(raw)
+  } else {
+    self.nok(w)(503, err.Error())
+  }
+ */
 }
 
 func (self *ApiServer) newApi(name string) *Api {
@@ -268,6 +269,16 @@ func (self *ApiServer) newApi(name string) *Api {
   ret.versions = make(map[string]*Version)
   ret.mainlines = make(map[string]string)
   return ret
+}
+
+func (self *ApiServer) isLocal(r *http.Request) bool {
+  fmt.Println(r.RemoteAddr)
+  return false
+}
+
+func (self *ApiServer) isInternal(r *http.Request) bool {
+  fmt.Println(r.RemoteAddr)
+  return false
 }
 
 /* --------------------------- helper ----------------------------- */
@@ -302,7 +313,7 @@ func pack(w http.ResponseWriter) func(int, string) {
  *  \return func(int, string): a lambda which is used to pack message and code
  *                             into an json object
  */
-func nok(w http.ResponseWriter) func(int, string) {
+func (self *ApiServer) nok(w http.ResponseWriter) func(int, string) {
   return func(code int, message string) {
     pack(w)(code, message)
   }
@@ -317,7 +328,7 @@ func nok(w http.ResponseWriter) func(int, string) {
  *  \return func(string): a lambda which is used to pack message and code
  *                        into an json object
  */
-func ok(w http.ResponseWriter) func(string) {
+func (self *ApiServer) ok(w http.ResponseWriter) func(string) {
   return func(message string) {
     pack(w)(200, message)
   }
@@ -334,7 +345,6 @@ func NewApiServer(user_agent string) *ApiServer {
 
   ret.router = mux.NewRouter()
   ret.endpoints = make(map[string]*Api)
-  ret.agent = user_agent
   ret.endpoint("query").
       version("v1").
       mock("/query").
